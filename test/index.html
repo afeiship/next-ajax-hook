@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>NxAjaxHook</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/next-js-core2/dist/next-js-core2.js"></script>
+    <script src="/next-ajax-hook.js"></script>
+  </head>
+  <body>
+    <script>
+      nx.AjaxHook.on({
+        properties: {
+          responseXML: 129,
+          responseType: 'json'
+        },
+        events: {
+          load: function(event) {
+            console.log('xxx', event);
+          }
+        }
+      });
+
+      // hook jquery
+      $.ajax({
+        url: 'https://api.github.com/users/afeiship',
+        method: 'GET',
+        success: function(res) {
+          console.log('response updated_at:->', res.updated_at);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -7,15 +7,35 @@ npm install -S afeiship/next-ajax-hook --registry=https://registry.npm.taobao.or
 ```
 
 ## apis
-| api | params | description   |
-|-----|--------|---------------|
-| get | -      | desc balabala |
+| api | params | description      |
+| --- | ------ | ---------------- |
+| on  | -      | hook something   |
+| off | -      | unhook something |
 
 ## usage
 ```js
 import NxAjaxHook from 'next-ajax-hook';
 
-// code goes here:
+NxAjaxHook.on({
+  properties: {
+    responseXML: 129,
+    responseType: 'json'
+  },
+  events: {
+    load: function(event) {
+      console.log('xxx', event);
+    }
+  }
+});
+
+// hook jquery
+$.ajax({
+  url: 'https://api.github.com/users/afeiship',
+  method: 'GET',
+  success: function(res) {
+    console.log('response updated_at:->', res.updated_at);
+  }
+});
 ```
 
 ## resources
