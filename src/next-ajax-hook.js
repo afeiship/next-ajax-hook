@@ -6,7 +6,22 @@
 
   var NxAjaxHook = nx.declare('nx.AjaxHook', {
     statics: {
-      __proxy: null,
+      on: function(inProxy) {
+        var self = this;
+        this.proxy = nx.mix(null, DEFAULT_PROPXY, inProxy);
+        global[REAL_XHR] = global[REAL_XHR] || global.XMLHttpRequest;
+
+        global.XMLHttpRequest = function() {
+          var xhr = new global[REAL_XHR]();
+          self.__hookProperties(xhr);
+          self.__hookMethods(xhr);
+          self.__hookEvents(xhr);
+          return xhr;
+        };
+      },
+      off: function() {
+        global[REAL_XHR] && (global.XMLHttpRequest = global[REAL_XHR]);
+      },
       __hookProperties: function(inXhr) {
         var properties = this.proxy.properties;
         nx.forIn(properties, function(key, value) {
@@ -30,22 +45,6 @@
         nx.forIn(events, function(key, value) {
           inXhr.addEventListener(key, value);
         });
-      },
-      on: function(inProxy) {
-        var self = this;
-        this.proxy = nx.mix(null, DEFAULT_PROPXY, inProxy || this.__proxy);
-        global[REAL_XHR] = global[REAL_XHR] || global.XMLHttpRequest;
-
-        global.XMLHttpRequest = function() {
-          var xhr = new global[REAL_XHR]();
-          self.__hookProperties(xhr);
-          self.__hookMethods(xhr);
-          self.__hookEvents(xhr);
-          return xhr;
-        };
-      },
-      off: function() {
-        global[REAL_XHR] && (global.XMLHttpRequest = global[REAL_XHR]);
       }
     }
   });
