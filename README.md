@@ -19,4 +19,4 @@ import NxAjaxHook from 'next-ajax-hook';
 ```
 
 ## resources
-- https://github.com/afeiship
+- https://github.com/wendux/Ajax-hook.git
