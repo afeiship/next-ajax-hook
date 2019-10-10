@@ -6,26 +6,41 @@
 
   var NxAjaxHook = nx.declare('nx.AjaxHook', {
     statics: {
-      _proxy: null,
+      __proxy: null,
+      __hookProperties: function(inXhr) {
+        var properties = this.proxy.properties;
+        nx.forIn(properties, function(key, value) {
+          nx.defineProperty(inXhr, key, value);
+        });
+      },
+      __hookMethods: function(inXhr) {
+        var methods = this.proxy.methods;
+        nx.forIn(methods, function(key, value) {
+          var old = inXhr[key].bind(inXhr);
+          inXhr[key] = function() {
+            var args = nx.slice(arguments);
+            if (value.call(inXhr, args, old) !== null) {
+              old.apply(inXhr, args);
+            }
+          };
+        });
+      },
+      __hookEvents: function(inXhr) {
+        var events = this.proxy.events;
+        nx.forIn(events, function(key, value) {
+          inXhr.addEventListener(key, value);
+        });
+      },
       on: function(inProxy) {
-        var proxy = nx.mix(null, DEFAULT_PROPXY, inProxy || this._proxy);
-        this.proxy = proxy;
+        var self = this;
+        this.proxy = nx.mix(null, DEFAULT_PROPXY, inProxy || this.__proxy);
         global[REAL_XHR] = global[REAL_XHR] || global.XMLHttpRequest;
+
         global.XMLHttpRequest = function() {
           var xhr = new global[REAL_XHR]();
-          var properties = proxy.properties;
-          var methods = proxy.methods;
-          var events = proxy.events;
-          var overrides = nx.mix(null, properties, methods);
-
-          nx.forIn(overrides, function(key, value) {
-            nx.defineProperty(xhr, key, value);
-          });
-
-          nx.forIn(events, function(key, value) {
-            xhr.addEventListener(key, value);
-          });
-
+          self.__hookProperties(xhr);
+          self.__hookMethods(xhr);
+          self.__hookEvents(xhr);
           return xhr;
         };
       },
